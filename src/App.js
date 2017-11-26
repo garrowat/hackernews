@@ -54,8 +54,8 @@ class App extends Component {
       color: '#000000',
     };
     this.increaseFontSize = this.increaseFontSize.bind(this);
-    this.resetFontSize = this.increaseFontSize.bind(this);
-    this.randomColor = this.increaseFontSize.bind(this);
+    this.resetFontSize = this.resetFontSize.bind(this);
+    this.randomColor = this.randomColor.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
   }
 
@@ -73,12 +73,13 @@ class App extends Component {
   }
 
   onDismiss(id) {
-    const isNotID = (item) => {
-      return item.ObjectID !== id;
-    }
-
-    const updatedList = {this.state.list.filter(isNotId)};
+    const isNotId = item => item.objectID !== id;
+    const updatedList = this.state.list.filter(isNotId);
     this.setState({list: updatedList});
+  }
+
+  getFilteredList(id) {
+
   }
 
   render() {
@@ -92,10 +93,10 @@ class App extends Component {
             <span style={{color: this.state.color, fontSize: this.state.fontSize, transition: '0.5s',}}>{item.author}</span>
             <span>{item.num_comments}</span>
             <span>{item.points}</span>
-            <button onClick={() => this.onDismiss(item.ObjectID)}>Dismiss</button>
-            <button onClick={this.increaseFontSize}>Current Size: { this.state.fontSize }</button>
-            <button onClick={this.randomColor}>Current Color: { this.state.color }</button>
-            <button onClick={this.resetFontSize}>Reset</button>
+            <button onClick={() => this.onDismiss(item.objectID)} type='button'>Dismiss</button>
+            <button onClick={() => this.increaseFontSize(item.objectID)}>Current Size: { this.state.fontSize }</button>
+            <button onClick={() => this.randomColor(item.objectID)}>Current Color: { this.state.color }</button>
+            <button onClick={() => this.resetFontSize(item.objectID)}>Reset</button>
           </div>
         )}
       </div>
