@@ -9,6 +9,10 @@ const list = [
     num_comments: 3,
     points: 4,
     objectID: 0,
+    style: {
+      color: '#000000',
+      fontSize: 10,
+    }
   },
   {
     title: 'Redux',
@@ -17,6 +21,10 @@ const list = [
     num_comments: 2,
     points: 5,
     objectID: 1,
+    style: {
+      color: '#000000',
+      fontSize: 10,
+    }
   },
   {
     title: 'Flux',
@@ -25,6 +33,10 @@ const list = [
     num_comments: 2,
     points: 5,
     objectID: 2,
+    style: {
+      color: '#000000',
+      fontSize: 10,
+    }
   },
   {
     title: 'Inferno',
@@ -33,6 +45,10 @@ const list = [
     num_comments: 5,
     points: 5,
     objectID: 3,
+    style: {
+      color: '#000000',
+      fontSize: 10,
+    }
   },
   {
     title: 'Meteor',
@@ -41,6 +57,10 @@ const list = [
     num_comments: 3,
     points: 5,
     objectID: 4,
+    style: {
+      color: '#000000',
+      fontSize: 10,
+    }
   },
 ];
 
@@ -50,8 +70,6 @@ class App extends Component {
 
     this.state = {
       list,
-      fontSize: 10,
-      color: '#000000',
     };
     this.increaseFontSize = this.increaseFontSize.bind(this);
     this.resetFontSize = this.resetFontSize.bind(this);
@@ -59,17 +77,38 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
   }
 
-  increaseFontSize() {
-    this.setState({fontSize: this.state.fontSize * 2});
+  increaseFontSize(id) {
+    const updatedList = this.state.list.reduce((itemList, item) => {
+      if (item.objectID === id) {
+        item.style.fontSize *= 2;
+      }
+      itemList.push(item);
+      return itemList;
+    },[]);
+    this.setState({list: updatedList});
   }
 
-  resetFontSize() {
-    this.setState({fontSize: 10});
+  resetFontSize(id) {
+    const updatedList = this.state.list.reduce((itemList, item) => {
+      if (item.objectID === id) {
+        item.style.fontSize = 10;
+      }
+      itemList.push(item);
+      return itemList;
+    },[]);
+    this.setState({list: updatedList});
   }
 
-  randomColor() {
+  randomColor(id) {
     const randomHex = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-    this.setState({color: randomHex});
+    const updatedList = this.state.list.reduce((itemList, item) => {
+      if (item.objectID === id) {
+        item.style.color = randomHex;
+      }
+      itemList.push(item);
+      return itemList;
+    },[]);
+    this.setState({list: updatedList});
   }
 
   onDismiss(id) {
@@ -78,11 +117,8 @@ class App extends Component {
     this.setState({list: updatedList});
   }
 
-  getFilteredList(id) {
-
-  }
-
   render() {
+
     return (
       <div className="App">
         { this.state.list.map(item =>
@@ -90,12 +126,12 @@ class App extends Component {
             <span>
               <a href={item.url}>{item.title}</a>
             </span>
-            <span style={{color: this.state.color, fontSize: this.state.fontSize, transition: '0.5s',}}>{item.author}</span>
+            <span style={{color: item.style.color, fontSize: item.style.fontSize, transition: '0.5s',}}>{item.author}</span>
             <span>{item.num_comments}</span>
             <span>{item.points}</span>
             <button onClick={() => this.onDismiss(item.objectID)} type='button'>Dismiss</button>
-            <button onClick={() => this.increaseFontSize(item.objectID)}>Current Size: { this.state.fontSize }</button>
-            <button onClick={() => this.randomColor(item.objectID)}>Current Color: { this.state.color }</button>
+            <button onClick={() => this.increaseFontSize(item.objectID)}>Current Size: { item.style.fontSize }</button>
+            <button onClick={() => this.randomColor(item.objectID)}>Current Color: { item.style.color }</button>
             <button onClick={() => this.resetFontSize(item.objectID)}>Reset</button>
           </div>
         )}
