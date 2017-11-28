@@ -64,20 +64,24 @@ const list = [
   },
 ];
 
+const isSearched = (searchTerm) => (item) =>
+  item.title.toLowerCase().includes(searchTerm.toLowerCase());
+
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       list,
+      searchTerm: '',
     };
-    this.increaseFontSize = this.increaseFontSize.bind(this);
-    this.resetFontSize = this.resetFontSize.bind(this);
-    this.randomColor = this.randomColor.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
   }
 
-  increaseFontSize(id) {
+  onSearchChange = (event) => {
+    this.setState({ searchTerm: event.target.value });
+  }
+
+  increaseFontSize = (id) => {
     const updatedList = this.state.list.reduce((itemList, item) => {
       if (item.objectID === id) {
         item.style.fontSize *= 2;
@@ -88,22 +92,10 @@ class App extends Component {
     this.setState({list: updatedList});
   }
 
-  resetFontSize(id) {
+  resetFontSize = (id) => {
     const updatedList = this.state.list.reduce((itemList, item) => {
       if (item.objectID === id) {
         item.style.fontSize = 10;
-      }
-      itemList.push(item);
-      return itemList;
-    },[]);
-    this.setState({list: updatedList});
-  }
-
-  randomColor(id) {
-    const randomHex = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-    const updatedList = this.state.list.reduce((itemList, item) => {
-      if (item.objectID === id) {
-        item.style.color = randomHex;
       }
       itemList.push(item);
       return itemList;
@@ -117,24 +109,48 @@ class App extends Component {
     this.setState({list: updatedList});
   }
 
-  render() {
+  randomColor = (id) => {
+    const randomHex = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+    const updatedList = this.state.list.reduce((itemList, item) => {
+      if (item.objectID === id) {
+        item.style.color = randomHex;
+      }
+      itemList.push(item);
+      return itemList;
+    },[]);
+    this.setState({list: updatedList});
+  }
 
+  render() {
+    const { searchTerm, List } = this.state;
     return (
       <div className="App">
-        { this.state.list.map(item =>
-          <div key={item.objectID}>
-            <span>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span style={{color: item.style.color, fontSize: item.style.fontSize, transition: '0.5s',}}>{item.author}</span>
-            <span>{item.num_comments}</span>
-            <span>{item.points}</span>
-            <button onClick={() => this.onDismiss(item.objectID)} type='button'>Dismiss</button>
-            <button onClick={() => this.increaseFontSize(item.objectID)}>Current Size: { item.style.fontSize }</button>
-            <button onClick={() => this.randomColor(item.objectID)}>Current Color: { item.style.color }</button>
-            <button onClick={() => this.resetFontSize(item.objectID)}>Reset</button>
-          </div>
-        )}
+        <Search
+          value={searchTerm}
+          onChange={this.onSearchChange}
+        />
+        <form>
+          <input
+          type='text'
+          value={searchTerm}
+          onChange={this.onSearchChange} />
+        </form>
+
+        { list.filter(isSearched(searchTerm)).map(item =>
+            <div key={item.objectID}>
+              <span>
+                <a href={item.url}>{item.title}</a>
+              </span>
+              <span style={{color: item.style.color, fontSize: item.style.fontSize, transition: '0.5s',}}>{item.author}</span>
+              <span>{item.num_comments}</span>
+              <span>{item.points}</span>
+              <button onClick={() => this.onDismiss(item.objectID)} type='button'>Dismiss</button>
+              <button onClick={() => this.increaseFontSize(item.objectID)}>Current Size: { item.style.fontSize }</button>
+              <button onClick={() => this.randomColor(item.objectID)}>Current Color: { item.style.color }</button>
+              <button onClick={() => this.resetFontSize(item.objectID)}>Reset</button>
+            </div>
+          )
+        }
       </div>
     );
   }
