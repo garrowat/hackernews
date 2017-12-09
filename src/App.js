@@ -143,7 +143,7 @@ class App extends Component {
   }
 }
 
-const Search = ({
+export const Search = ({
   value,
   onChange,
   children,
@@ -160,7 +160,7 @@ const Search = ({
     </Button>
   </form>
 
-const Table = ({list, onDismiss}) =>
+export const Table = ({list, onDismiss}) =>
   <div className='table'>
     {list.map(item =>
       <div className='table-row' key={item.objectID}>
@@ -188,7 +188,7 @@ const Table = ({list, onDismiss}) =>
     )}
   </div>
 
-const Button = ({onClick, className = '', children,}) =>
+export const Button = ({onClick, className = '', children,}) =>
   <button
     onClick={onClick}
     className={className}
