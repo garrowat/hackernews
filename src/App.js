@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import fetch from 'isomorphic-fetch';
+import PropTypes from 'prop-types';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100'
@@ -160,6 +161,13 @@ export const Search = ({
     </Button>
   </form>
 
+Search.PropTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+}
+
 export const Table = ({list, onDismiss}) =>
   <div className='table'>
     {list.map(item =>
@@ -188,6 +196,19 @@ export const Table = ({list, onDismiss}) =>
     )}
   </div>
 
+  Table.PropTypes = {
+    list: PropTypes.arrayOf(
+      PropTypes.shape({
+        objectID: PropTypes.string.isRequired,
+        author: PropTypes.string,
+        url: PropTypes.string,
+        num_comments: PropTypes.num,
+        points: PropTypes.num,
+      }).isRequired,
+    ),
+    onDismiss: PropTypes.func.isRequired,
+  }
+
 export const Button = ({onClick, className = '', children,}) =>
   <button
     onClick={onClick}
@@ -196,5 +217,11 @@ export const Button = ({onClick, className = '', children,}) =>
   >
     {children}
   </button>
+
+  Button.PropTypes = {
+    onClick: PropTypes.func.isRequired,
+    className: PropTypes.string,
+    children: PropTypes.node.isRequired,
+  };
 
 export default App;

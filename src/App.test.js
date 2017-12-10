@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
 import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adaper-react-16';
+import Adapter from 'enzyme-adapter-react-16';
 import App, { Search, Button, Table } from './App';
 
 Enzyme.configure({ adapter: new Adapter() });
@@ -56,6 +56,14 @@ describe('Button', () => {
     expect(tree).toMatchSnapshot();
   });
 
+  it('contains the text "Give Me More"', () => {
+    const element = shallow(
+      <Button>Give Me More</Button>
+    )
+    console.log(element);
+
+    expect(element.contains('Give Me More')).to.equal(true);
+  });
 })
 
 describe('Table', () => {
