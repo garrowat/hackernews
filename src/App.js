@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import './App.css';
 import fetch from 'isomorphic-fetch';
-import PropTypes from 'prop-types';
+import propTypes from 'prop-types';
+import { sortBy } from 'lodash';
+
+//Material-UI Modules
+import { CircularProgress } from 'material-ui/Progress';
+import 'typeface-roboto'
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100'
@@ -15,6 +20,14 @@ const PARAM_HPP = 'hitsPerPage=';
 const isSearched = (searchTerm) => (item) =>
   item.title.toLowerCase().includes(searchTerm.toLowerCase());
 
+const SORTS = {
+  NONE: list => list,
+  TITLE: list => sortBy(list, 'title'),
+  AUTHOR: list => sortBy(list, 'author'),
+  COMMENTS: list => sortBy(list, 'num_comments').reverse(),
+  POINTS: list => sortBy(list, 'points').reverse(),
+};
+
 class App extends Component {
 
   constructor(props) {
@@ -25,9 +38,14 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error: null,
+      isLoading: false,
+      sortKey: 'NONE',
     };
 
   }
+
+  onSort = sortKey =>
+    this.setState({ sortKey })
 
   needsToSearchTopStories = searchTerm =>
     !this.state.results[searchTerm];
@@ -49,11 +67,14 @@ class App extends Component {
       results: {
         ...results,
         [searchKey]: { hits: updatedHits, page }
-      }
+      },
+      isLoading: false,
     });
   };
 
   fetchSearchTopStories = (searchTerm, page = 0) => {
+    this.setState({ isLoading: true });
+
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
     .then(response => response.json())
     .then(result => this.setSearchTopStories(result))
@@ -100,6 +121,8 @@ class App extends Component {
       results,
       searchKey,
       error,
+      isLoading,
+      sortKey
     } = this.state;
 
     const page = (
@@ -130,13 +153,17 @@ class App extends Component {
             </div>
             : <Table
               list={list}
+              sortKey={sortKey}
+              onSort={this.onSort}
               onDismiss={this.onDismiss}
             />
           }
           <div className='interactions'>
-            <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+            <ButtonWithLoading
+              isLoading={isLoading}
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
               More
-            </Button>
+            </ButtonWithLoading>
           </div>
         </div>
       </div>
@@ -144,33 +171,55 @@ class App extends Component {
   }
 }
 
-export const Search = ({
-  value,
-  onChange,
-  children,
-  onSubmit,
-}) =>
-  <form onSubmit={onSubmit}>
-    {children}<input
-      type="text"
-      value={value}
-      onChange={onChange}
-    />
-    <Button type='submit'>
-      {children}
-    </Button>
-  </form>
+export class Search extends Component {
 
-Search.PropTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired,
-  onSubmit: PropTypes.func.isRequired,
+  componentDidMount() {
+    this.input.focus();
+  }
+
+  render() {
+    const {
+      value,
+      onChange,
+      children,
+      onSubmit,
+    } = this.props;
+
+    return (
+      <form onSubmit={onSubmit}>
+        {children}
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          ref={ (node) => { this.input = node; }}
+        />
+        <Button type='submit'>
+          {children}
+        </Button>
+      </form>
+    );
+  }
 }
 
-export const Table = ({list, onDismiss}) =>
+Search.propTypes = {
+  value: propTypes.string,
+  onChange: propTypes.func.isRequired,
+  children: propTypes.node.isRequired,
+  onSubmit: propTypes.func.isRequired,
+}
+
+export const Table = ({
+  list,
+  sortKey,
+  onSort,
+  onDismiss
+}) =>
   <div className='table'>
-    {list.map(item =>
+    <div className='table-header'>
+      <span style={{}}
+    </div>
+    { SORTS[sortKey](list).map(item =>
       <div className='table-row' key={item.objectID}>
         <span style={{ width: '40%' }}>
           <a href={item.url}>{item.title}</a>
@@ -196,17 +245,17 @@ export const Table = ({list, onDismiss}) =>
     )}
   </div>
 
-  Table.PropTypes = {
-    list: PropTypes.arrayOf(
-      PropTypes.shape({
-        objectID: PropTypes.string.isRequired,
-        author: PropTypes.string,
-        url: PropTypes.string,
-        num_comments: PropTypes.num,
-        points: PropTypes.num,
+  Table.propTypes = {
+    list: propTypes.arrayOf(
+      propTypes.shape({
+        objectID: propTypes.string.isRequired,
+        author: propTypes.string,
+        url: propTypes.string,
+        num_comments: propTypes.num,
+        points: propTypes.num,
       }).isRequired,
     ),
-    onDismiss: PropTypes.func.isRequired,
+    onDismiss: propTypes.func.isRequired,
   }
 
 export const Button = ({onClick, className = '', children,}) =>
@@ -218,10 +267,21 @@ export const Button = ({onClick, className = '', children,}) =>
     {children}
   </button>
 
-  Button.PropTypes = {
-    onClick: PropTypes.func.isRequired,
-    className: PropTypes.string,
-    children: PropTypes.node.isRequired,
-  };
+Button.propTypes = {
+  onClick: propTypes.func.isRequired,
+  className: propTypes.string,
+  children: propTypes.node.isRequired,
+};
+
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
+  isLoading
+    ? <Loading />
+    : <Component { ...rest } />
+
+
+const Loading = () =>
+  <CircularProgress />
+
+const ButtonWithLoading = withLoading(Button);
 
 export default App;
