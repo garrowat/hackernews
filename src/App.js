@@ -12,8 +12,12 @@ import 'typeface-roboto'
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
+import TextField from 'material-ui/TextField';
+import Icon from 'material-ui/Icon';
+import MuiButton from 'material-ui/Button';
 
 //MUI styles
+const theme = createMuiTheme();
 const styles = theme => ({
   root: {
     width: '100%',
@@ -22,6 +26,18 @@ const styles = theme => ({
   },
   table: {
     minWidth: 700,
+  },
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  textField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    width: 200,
+  },
+  button: {
+    margin: theme.spacing.unit,
   },
 });
 
@@ -44,6 +60,8 @@ const SORTS = {
   COMMENTS: list => sortBy(list, 'num_comments').reverse(),
   POINTS: list => sortBy(list, 'points').reverse(),
 };
+
+
 
 class App extends Component {
 
@@ -175,8 +193,9 @@ class App extends Component {
               value={searchTerm}
               onChange={this.onSearchChange}
               onSubmit={this.onSearchSubmit}
+              classes={theme}
             >
-            Search
+            <Icon>search</Icon>
             </Search>
             { error
               ? <div className='interactions'>
@@ -188,7 +207,7 @@ class App extends Component {
                 isSortReverse={isSortReverse}
                 onSort={this.onSort}
                 onDismiss={this.onDismiss}
-                classes={classes}
+                classes={theme}
               />
             }
             <div className='interactions'>
@@ -207,30 +226,28 @@ class App extends Component {
 
 export class Search extends Component {
 
-  componentDidMount() {
-    this.input.focus();
-  }
-
   render() {
     const {
       value,
       onChange,
       children,
       onSubmit,
+      classes
     } = this.props;
 
     return (
-      <form onSubmit={onSubmit}>
-        {children}
-        <input
-          type="text"
+      <form className={classes.container} noValidate autoComplete="off" onSubmit={onSubmit}>
+        <TextField
+          id='search'
+          label='Search'
+          className={classes.textField}
+          margin='normal'
           value={value}
           onChange={onChange}
-          ref={ (node) => { this.input = node; }}
         />
-        <Button type='submit'>
+        <MuiButton type='submit' className={classes.button} raised color="accent">
           {children}
-        </Button>
+        </MuiButton>
       </form>
     );
   }
@@ -259,71 +276,75 @@ export const ContentTable = ({
   return(
     <Paper className={classes.root}>
       <Table className={classes.table}>
-        <div className='table-header'>
-          <span style={{ width: '40%' }}>
-            <Sort
-              sortKey={'TITLE'}
-              onSort={onSort}
-              activeSortKey={sortKey}
-            >
-            Title
-            </Sort>
-          </span>
-          <span style={{ width: '30%' }}>
-            <Sort
-              sortKey={'AUTHOR'}
-              onSort={onSort}
-              activeSortKey={sortKey}
-            >
-            Author
-            </Sort>
-          </span>
-          <span style={{ width: '10%' }}>
-            <Sort
-              sortKey={'COMMENTS'}
-              onSort={onSort}
-              activeSortKey={sortKey}
-            >
-            Comments
-            </Sort>
-          </span>
-          <span style={{ width: '10%' }}>
-            <Sort
-              sortKey={'POINTS'}
-              onSort={onSort}
-              activeSortKey={sortKey}
-            >
-            Points
-            </Sort>
-          </span>
-          <span style={{ width: '10%' }}>
-            Archive
-          </span>
-        </div>
-        { reverseSortedList.map(item =>
-          <div className='table-row' key={item.objectID}>
-            <span style={{ width: '40%' }}>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span style={{ width: '30%' }}>
-              {item.author}
-            </span>
-            <span style={{ width: '10%' }}>
-              {item.num_comments}
-            </span>
-            <span style={{ width: '10%' }}>
-              {item.points}
-            </span>
-            <span style={{ width: '10%' }}>
-              <Button
-                onClick={() => onDismiss(item.objectID)}
-                className="button-inline"
+        <TableHead>
+          <TableRow>
+            <TableCell>
+              <Sort
+                sortKey={'TITLE'}
+                onSort={onSort}
+                activeSortKey={sortKey}
               >
-                Dismiss
-              </Button>
-            </span>
-          </div>
-        )}
+              Title
+              </Sort>
+            </TableCell>
+            <TableCell>
+              <Sort
+                sortKey={'AUTHOR'}
+                onSort={onSort}
+                activeSortKey={sortKey}
+              >
+              Author
+              </Sort>
+            </TableCell>
+            <TableCell>
+              <Sort
+                sortKey={'COMMENTS'}
+                onSort={onSort}
+                activeSortKey={sortKey}
+              >
+              Comments
+              </Sort>
+            </TableCell>
+            <TableCell>
+              <Sort
+                sortKey={'POINTS'}
+                onSort={onSort}
+                activeSortKey={sortKey}
+              >
+              Points
+              </Sort>
+            </TableCell>
+            <TableCell>
+              Archive
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          { reverseSortedList.map(item =>
+            <TableRow key={item.objectID}>
+              <TableCell>
+                <a href={item.url}>{item.title}</a>
+              </TableCell>
+              <TableCell>
+                {item.author}
+              </TableCell>
+              <TableCell>
+                {item.num_comments}
+              </TableCell>
+              <TableCell>
+                {item.points}
+              </TableCell>
+              <TableCell>
+                <Button
+                  onClick={() => onDismiss(item.objectID)}
+                  className="button-inline"
+                >
+                  Dismiss
+                </Button>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
     </Paper>
   );
