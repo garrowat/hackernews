@@ -5,9 +5,25 @@ import propTypes from 'prop-types';
 import { sortBy } from 'lodash';
 import classNames from 'classnames';
 
-//Material-UI Modules
+//Material-UI (MUI) Modules
+import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import { CircularProgress } from 'material-ui/Progress';
 import 'typeface-roboto'
+import { withStyles } from 'material-ui/styles';
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import Paper from 'material-ui/Paper';
+
+//MUI styles
+const styles = theme => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing.unit * 3,
+    overflowX: 'auto',
+  },
+  table: {
+    minWidth: 700,
+  },
+});
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100'
@@ -127,6 +143,8 @@ class App extends Component {
   };
 
   render() {
+    const { classes } = this.props;
+
     const {
       searchTerm,
       results,
@@ -150,36 +168,39 @@ class App extends Component {
     ) || [];
 
     return (
-      <div className="page">
-        <div className="interactions">
-          <Search
-            value={searchTerm}
-            onChange={this.onSearchChange}
-            onSubmit={this.onSearchSubmit}
-          >
-          Search
-          </Search>
-          { error
-            ? <div className='interactions'>
-              <p>Something went wrong.</p>
+      <MuiThemeProvider>
+        <div className="page">
+          <div className="interactions">
+            <Search
+              value={searchTerm}
+              onChange={this.onSearchChange}
+              onSubmit={this.onSearchSubmit}
+            >
+            Search
+            </Search>
+            { error
+              ? <div className='interactions'>
+                <p>Something went wrong.</p>
+              </div>
+              : <ContentTable
+                list={list}
+                sortKey={sortKey}
+                isSortReverse={isSortReverse}
+                onSort={this.onSort}
+                onDismiss={this.onDismiss}
+                classes={classes}
+              />
+            }
+            <div className='interactions'>
+              <ButtonWithLoading
+                isLoading={isLoading}
+                onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+                More
+              </ButtonWithLoading>
             </div>
-            : <Table
-              list={list}
-              sortKey={sortKey}
-              isSortReverse={isSortReverse}
-              onSort={this.onSort}
-              onDismiss={this.onDismiss}
-            />
-          }
-          <div className='interactions'>
-            <ButtonWithLoading
-              isLoading={isLoading}
-              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
-              More
-            </ButtonWithLoading>
           </div>
         </div>
-      </div>
+      </MuiThemeProvider>
     );
   }
 }
@@ -222,12 +243,13 @@ Search.propTypes = {
   onSubmit: propTypes.func.isRequired,
 }
 
-export const Table = ({
+export const ContentTable = ({
   list,
   sortKey,
   onSort,
   onDismiss,
-  isSortReverse
+  isSortReverse,
+  classes
 }) => {
   const sortedList = SORTS[sortKey](list);
   const reverseSortedList = isSortReverse
@@ -235,77 +257,79 @@ export const Table = ({
     : sortedList;
 
   return(
-    <div className='table'>
-      <div className='table-header'>
-        <span style={{ width: '40%' }}>
-          <Sort
-            sortKey={'TITLE'}
-            onSort={onSort}
-            activeSortKey={sortKey}
-          >
-          Title
-          </Sort>
-        </span>
-        <span style={{ width: '30%' }}>
-          <Sort
-            sortKey={'AUTHOR'}
-            onSort={onSort}
-            activeSortKey={sortKey}
-          >
-          Author
-          </Sort>
-        </span>
-        <span style={{ width: '10%' }}>
-          <Sort
-            sortKey={'COMMENTS'}
-            onSort={onSort}
-            activeSortKey={sortKey}
-          >
-          Comments
-          </Sort>
-        </span>
-        <span style={{ width: '10%' }}>
-          <Sort
-            sortKey={'POINTS'}
-            onSort={onSort}
-            activeSortKey={sortKey}
-          >
-          Points
-          </Sort>
-        </span>
-        <span style={{ width: '10%' }}>
-          Archive
-        </span>
-      </div>
-      { reverseSortedList.map(item =>
-        <div className='table-row' key={item.objectID}>
+    <Paper className={classes.root}>
+      <Table className={classes.table}>
+        <div className='table-header'>
           <span style={{ width: '40%' }}>
-            <a href={item.url}>{item.title}</a>
+            <Sort
+              sortKey={'TITLE'}
+              onSort={onSort}
+              activeSortKey={sortKey}
+            >
+            Title
+            </Sort>
           </span>
           <span style={{ width: '30%' }}>
-            {item.author}
-          </span>
-          <span style={{ width: '10%' }}>
-            {item.num_comments}
-          </span>
-          <span style={{ width: '10%' }}>
-            {item.points}
-          </span>
-          <span style={{ width: '10%' }}>
-            <Button
-              onClick={() => onDismiss(item.objectID)}
-              className="button-inline"
+            <Sort
+              sortKey={'AUTHOR'}
+              onSort={onSort}
+              activeSortKey={sortKey}
             >
-              Dismiss
-            </Button>
+            Author
+            </Sort>
+          </span>
+          <span style={{ width: '10%' }}>
+            <Sort
+              sortKey={'COMMENTS'}
+              onSort={onSort}
+              activeSortKey={sortKey}
+            >
+            Comments
+            </Sort>
+          </span>
+          <span style={{ width: '10%' }}>
+            <Sort
+              sortKey={'POINTS'}
+              onSort={onSort}
+              activeSortKey={sortKey}
+            >
+            Points
+            </Sort>
+          </span>
+          <span style={{ width: '10%' }}>
+            Archive
           </span>
         </div>
-      )}
-    </div>
+        { reverseSortedList.map(item =>
+          <div className='table-row' key={item.objectID}>
+            <span style={{ width: '40%' }}>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span style={{ width: '30%' }}>
+              {item.author}
+            </span>
+            <span style={{ width: '10%' }}>
+              {item.num_comments}
+            </span>
+            <span style={{ width: '10%' }}>
+              {item.points}
+            </span>
+            <span style={{ width: '10%' }}>
+              <Button
+                onClick={() => onDismiss(item.objectID)}
+                className="button-inline"
+              >
+                Dismiss
+              </Button>
+            </span>
+          </div>
+        )}
+      </Table>
+    </Paper>
   );
 }
 
-Table.propTypes = {
+ContentTable.propTypes = {
   list: propTypes.arrayOf(
     propTypes.shape({
       objectID: propTypes.string.isRequired,
