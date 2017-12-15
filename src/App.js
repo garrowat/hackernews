@@ -15,9 +15,22 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import Icon from 'material-ui/Icon';
 import MuiButton from 'material-ui/Button';
+import orange from 'material-ui/colors/orange';
+import grey from 'material-ui/colors/green';
+import red from 'material-ui/colors/red';
 
 //MUI styles
-const theme = createMuiTheme();
+const theme = createMuiTheme({
+  palette: {
+    primary: grey, // Purple and green play nicely together.
+    secondary: {
+      ...orange,
+      A400: '#FBEDC2',
+    },
+    error: red,
+  },
+});
+
 const styles = theme => ({
   root: {
     width: '100%',
@@ -30,6 +43,7 @@ const styles = theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
+    textAlign: 'center',
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -39,10 +53,15 @@ const styles = theme => ({
   button: {
     margin: theme.spacing.unit,
   },
+  interactions: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+
 });
 
 const DEFAULT_QUERY = 'redux';
-const DEFAULT_HPP = '100'
+const DEFAULT_HPP = '25'
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
@@ -186,37 +205,36 @@ class App extends Component {
     ) || [];
 
     return (
-      <MuiThemeProvider>
-        <div className="page">
-          <div className="interactions">
-            <Search
-              value={searchTerm}
-              onChange={this.onSearchChange}
-              onSubmit={this.onSearchSubmit}
-              classes={theme}
-            >
+      <MuiThemeProvider theme={theme}>
+        <div className={classes.interactions}>
+          <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
+            classes={classes}
+          >
             <Icon>search</Icon>
-            </Search>
-            { error
-              ? <div className='interactions'>
-                <p>Something went wrong.</p>
-              </div>
-              : <ContentTable
-                list={list}
-                sortKey={sortKey}
-                isSortReverse={isSortReverse}
-                onSort={this.onSort}
-                onDismiss={this.onDismiss}
-                classes={theme}
-              />
-            }
-            <div className='interactions'>
-              <ButtonWithLoading
-                isLoading={isLoading}
-                onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
-                More
-              </ButtonWithLoading>
+          </Search>
+          { error
+            ? <div className='interactions'>
+              <p>Something went wrong.</p>
             </div>
+            : <ContentTableWithStyles
+              list={list}
+              sortKey={sortKey}
+              isSortReverse={isSortReverse}
+              onSort={this.onSort}
+              onDismiss={this.onDismiss}
+              classes={classes}
+            />
+          }
+          <div className={classes.interactions}>
+            <MuiButtonWithLoading
+              isLoading={isLoading}
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+              classes={classes.button}>
+                <Icon>arrow_downward</Icon>
+            </MuiButtonWithLoading>
           </div>
         </div>
       </MuiThemeProvider>
@@ -245,7 +263,7 @@ export class Search extends Component {
           value={value}
           onChange={onChange}
         />
-        <MuiButton type='submit' className={classes.button} raised color="accent">
+        <MuiButton type='submit' className={classes.button} color="accent">
           {children}
         </MuiButton>
       </form>
@@ -328,10 +346,10 @@ export const ContentTable = ({
               <TableCell>
                 {item.author}
               </TableCell>
-              <TableCell>
+              <TableCell numeric>
                 {item.num_comments}
               </TableCell>
-              <TableCell>
+              <TableCell >
                 {item.points}
               </TableCell>
               <TableCell>
@@ -387,7 +405,11 @@ const withLoading = (Component) => ({ isLoading, ...rest }) =>
 const Loading = () =>
   <CircularProgress />
 
+const MuiButtonWithLoading = withLoading(MuiButton);
+
 const ButtonWithLoading = withLoading(Button);
+
+const ContentTableWithStyles = withStyles(styles)(ContentTable);
 
 const Sort = ({
   sortKey,
@@ -410,4 +432,4 @@ const Sort = ({
   );
 }
 
-export default App;
+export default withStyles(styles)(App);
