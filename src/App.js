@@ -23,10 +23,7 @@ import red from 'material-ui/colors/red';
 const theme = createMuiTheme({
   palette: {
     primary: grey, // Purple and green play nicely together.
-    secondary: {
-      ...orange,
-      A400: '#FBEDC2',
-    },
+    secondary: orange,
     error: red,
   },
 });
@@ -44,6 +41,8 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     textAlign: 'center',
+    margin: 'auto',
+    marginTop: '10px',
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -52,6 +51,7 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
+    align: 'center'
   },
   interactions: {
     display: 'flex',
@@ -206,7 +206,7 @@ class App extends Component {
 
     return (
       <MuiThemeProvider theme={theme}>
-        <div className={classes.interactions}>
+        <div className={classes.container}>
           <Search
             value={searchTerm}
             onChange={this.onSearchChange}
@@ -228,8 +228,9 @@ class App extends Component {
               classes={classes}
             />
           }
-          <div className={classes.interactions}>
+          <div className={classes.container}>
             <MuiButtonWithLoading
+              dense
               isLoading={isLoading}
               onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
               classes={classes.button}>
@@ -263,7 +264,7 @@ export class Search extends Component {
           value={value}
           onChange={onChange}
         />
-        <MuiButton type='submit' className={classes.button} color="accent">
+        <MuiButton dense type='submit' className={classes.button} color="accent">
           {children}
         </MuiButton>
       </form>
