@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import fetch from 'isomorphic-fetch';
 import propTypes from 'prop-types';
 import { sortBy } from 'lodash';
@@ -8,21 +7,32 @@ import classNames from 'classnames';
 //Material-UI (MUI) Modules
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import { CircularProgress } from 'material-ui/Progress';
-import 'typeface-roboto'
+import 'typeface-roboto';
 import { withStyles } from 'material-ui/styles';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import Table, {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+} from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import Icon from 'material-ui/Icon';
 import MuiButton from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+//MUIColors
 import orange from 'material-ui/colors/orange';
-import grey from 'material-ui/colors/green';
+import grey from 'material-ui/colors/grey';
 import red from 'material-ui/colors/red';
 
 //MUI styles
 const theme = createMuiTheme({
   palette: {
-    primary: grey, // Purple and green play nicely together.
+    primary: grey,
     secondary: orange,
     error: red,
   },
@@ -31,8 +41,8 @@ const theme = createMuiTheme({
 const styles = theme => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
+    fontFamily: 'roboto',
   },
   table: {
     minWidth: 700,
@@ -40,7 +50,6 @@ const styles = theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
-    textAlign: 'center',
     margin: 'auto',
     marginTop: '10px',
   },
@@ -50,12 +59,20 @@ const styles = theme => ({
     width: 200,
   },
   button: {
-    margin: theme.spacing.unit,
-    align: 'center'
+    margin: theme.spacing.unit
   },
   interactions: {
     display: 'flex',
     flexWrap: 'wrap',
+  },
+  appBar: {
+    marginBottom: '50px',
+  },
+  searchButton: {
+    marginTop: '20px',
+  },
+  sortButton: {
+    marginLeft: 0,
   },
 
 });
@@ -206,6 +223,15 @@ class App extends Component {
 
     return (
       <MuiThemeProvider theme={theme}>
+        <div className={classes.appBar}>
+          <AppBar position='fixed' color='accent' title='hn'>
+            <Toolbar>
+              <Typography type='title' color='inherit'>
+                hn
+              </Typography>
+            </Toolbar>
+          </AppBar>
+        </div>
         <div className={classes.container}>
           <Search
             value={searchTerm}
@@ -264,9 +290,9 @@ export class Search extends Component {
           value={value}
           onChange={onChange}
         />
-        <MuiButton dense type='submit' className={classes.button} color="accent">
+        <IconButton type='submit' color="accent" className={classes.searchButton}>
           {children}
-        </MuiButton>
+        </IconButton>
       </form>
     );
   }
@@ -287,12 +313,13 @@ export const ContentTable = ({
   isSortReverse,
   classes
 }) => {
+
   const sortedList = SORTS[sortKey](list);
   const reverseSortedList = isSortReverse
     ? sortedList.reverse()
     : sortedList;
 
-  return(
+  return (
     <Paper className={classes.root}>
       <Table className={classes.table}>
         <TableHead>
@@ -302,8 +329,9 @@ export const ContentTable = ({
                 sortKey={'TITLE'}
                 onSort={onSort}
                 activeSortKey={sortKey}
+                className={classes.sortButton}
               >
-              Title
+                Title
               </Sort>
             </TableCell>
             <TableCell>
@@ -311,8 +339,9 @@ export const ContentTable = ({
                 sortKey={'AUTHOR'}
                 onSort={onSort}
                 activeSortKey={sortKey}
+                classes={classes.sortButton}
               >
-              Author
+                Author
               </Sort>
             </TableCell>
             <TableCell>
@@ -320,8 +349,9 @@ export const ContentTable = ({
                 sortKey={'COMMENTS'}
                 onSort={onSort}
                 activeSortKey={sortKey}
+                classes={classes.sortButton}
               >
-              Comments
+                Comments
               </Sort>
             </TableCell>
             <TableCell>
@@ -329,8 +359,9 @@ export const ContentTable = ({
                 sortKey={'POINTS'}
                 onSort={onSort}
                 activeSortKey={sortKey}
+                classes={classes.sortButton}
               >
-              Points
+                Points
               </Sort>
             </TableCell>
             <TableCell>
@@ -342,24 +373,23 @@ export const ContentTable = ({
           { reverseSortedList.map(item =>
             <TableRow key={item.objectID}>
               <TableCell>
-                <a href={item.url}>{item.title}</a>
+                <a href={item.url}><Typography>{item.title}</Typography></a>
               </TableCell>
               <TableCell>
                 {item.author}
               </TableCell>
-              <TableCell numeric>
+              <TableCell>
                 {item.num_comments}
               </TableCell>
               <TableCell >
                 {item.points}
               </TableCell>
               <TableCell>
-                <Button
+                <IconButton
                   onClick={() => onDismiss(item.objectID)}
-                  className="button-inline"
                 >
-                  Dismiss
-                </Button>
+                  <Icon color="primary">delete</Icon>
+                </IconButton>
               </TableCell>
             </TableRow>
           )}
@@ -416,20 +446,19 @@ const Sort = ({
   sortKey,
   activeSortKey,
   onSort,
-  children
+  children,
+  className
 }) => {
-  const sortClass = classNames(
-    'button-inline',
-    { 'button-active' : sortKey === activeSortKey }
-  );
 
   return (
-    <Button
-      onClick={() => onSort(sortKey)}
-      className={sortClass}
-    >
-      {children}
-    </Button>
+    <div>
+      <TableSortLabel
+        disablePadding='true'
+        onClick={() => onSort(sortKey)}
+      >
+        {children}
+      </TableSortLabel>
+    </div>
   );
 }
 
