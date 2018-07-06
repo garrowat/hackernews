@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import fetch from 'isomorphic-fetch';
 import propTypes from 'prop-types';
 import { sortBy } from 'lodash';
-import classNames from 'classnames';
 
 //Material-UI (MUI) Modules
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
@@ -52,6 +51,11 @@ const styles = theme => ({
     flexWrap: 'wrap',
     margin: 'auto',
     marginTop: '10px',
+  },
+  homeLink: {
+    position: 'absolute',
+    right: 0,
+    marginRight: theme.spacing.unit,
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -229,6 +233,13 @@ class App extends Component {
               <Typography type='title' color='inherit'>
                 hn
               </Typography>
+              <div className={classes.homeLink}>
+                <Typography type='title' color='inherit'>
+                  <a href="https://garrettwatson.io" style={{textDecoration: "none", color: "black"}}>
+                    Go to garrettwatson.io
+                  </a>
+                </Typography>
+              </div>
             </Toolbar>
           </AppBar>
         </div>
